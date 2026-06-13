@@ -7,8 +7,16 @@ const cors = require("cors");
 const app = express();
 
 /* ================= MIDDLEWARE ================= */
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 /* ================= DATABASE CONNECTION ================= */
 mongoose
@@ -17,48 +25,42 @@ mongoose
     console.log("MongoDB Connected Successfully");
   })
   .catch((err) => {
-    console.log("MongoDB Connection Error:", err);
+    console.log("MongoDB Connection Error:", err.message);
   });
 
-/* ================= ROUTES ================= */
+/* ================= ROUTES IMPORT ================= */
 const userRoute = require("./Routes/userRoute");
 const productRoute = require("./Routes/productRoute");
 const cartRoute = require("./Routes/cartRoute");
 const orderRoute = require("./Routes/orderRoute");
 const paymentRoute = require("./Routes/paymentRoute");
-const adminRoute =require("./Routes/adminRoute");
-const reviewRoute =require("./Routes/reviewRoute");
-/* ================= API ROUTES ================= */
-
-// AUTH / USER ROUTES
-app.use("/user", userRoute);
-
-// PRODUCT ROUTES
-app.use("/product", productRoute);
-
-// CART ROUTES
-app.use("/cart", cartRoute);
-
-// ORDER ROUTES
-app.use("/order", orderRoute);
-
-// PAYMENT ROUTES
-app.use("/payment", paymentRoute);
-app.use("/admin", adminRoute);
-app.use("/review",reviewRoute);
+const adminRoute = require("./Routes/adminRoute");
+const reviewRoute = require("./Routes/reviewRoute");
 
 /* ================= TEST ROUTE ================= */
 app.get("/", (req, res) => {
   res.send("Sneakify Backend Running 🚀");
 });
 
-/* ================= HANDLE UNKNOWN ROUTES ================= */
+/* ================= API ROUTES ================= */
+app.use("/user", userRoute);
+app.use("/product", productRoute);
+app.use("/cart", cartRoute);
+app.use("/order", orderRoute);
+app.use("/payment", paymentRoute);
+app.use("/admin", adminRoute);
+app.use("/review", reviewRoute);
+
+/* ================= UNKNOWN ROUTE ================= */
 app.use((req, res) => {
-  res.status(404).json({ msg: "Route not found" });
+  res.status(404).json({
+    success: false,
+    msg: "Route not found",
+  });
 });
 
 /* ================= SERVER ================= */
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
   console.log(`Server Running On Port ${PORT}`);
